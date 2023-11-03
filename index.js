@@ -35,10 +35,44 @@ async function run() {
         res.send(result);
 
     })
-
+    // read all users tasks
     app.get('/usersTasks', async(req,res) => {
         const result = await usersTaskCollection.find().toArray();
         res.send(result);
+    })
+    app.get('/usersTasks/:id', async(req, res ) => {
+      const id = req.params.id;
+      const query = {_id: new ObjectId(id)};
+      const result = await usersTaskCollection.findOne(query);
+      res.send(result);
+    })
+    // update userTaskCollection
+    app.put('/usersTasks/:id', async(req,res) => {
+      const id =  req.params.id;
+      const filter = {_id: new ObjectId(id)};
+      const options = {upsert: true};
+      const updatedTask = req.body
+      const task = {
+        $set: {
+            taskName: updatedTask.taskName,
+            dueDate: updatedTask.dueDate,
+            priority:updatedTask.priority, 
+            memberName: updatedTask.memberName,
+            description:updatedTask.description, 
+        }
+      }
+      console.log(task);
+      const result = await usersTaskCollection.updateOne(filter, task, options)
+      res.send(result);
+    })
+
+    // delete a single task
+
+    app.delete('/usersTasks/:id', async(req, res) => {
+      const id = req.params.id;
+      const query = {_id: new ObjectId(id)};
+      const result = await usersTaskCollection.deleteOne(query);
+      res.send(result);
     })
 
     // Send a ping to confirm a successful connection
